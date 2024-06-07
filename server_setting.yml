@@ -1,0 +1,21 @@
+---
+  - name: Import LB01_setup playbook
+    import_playbook: LB01_setup.yml
+
+  - name: Import Web01_setup playbook
+    import_playbook: Web01_setup.yml
+
+  - name: Import Web02_setup playbook
+    import_playbook: Web02_setup.yml
+
+  - name: Import DBserver_setup playbook
+    import_playbook: DBserver_setup.yml
+
+  - name: Import Storage_setup playbook
+    import_playbook: NFS_setup.yml
+
+  - name: Import Web01_webpage_setup playbook
+    import_playbook: Web01_apache_setup.yml
+
+  - name: Import Web02_webpage_setup playbook
+    import_playbook: Web02_apache_setup.yml

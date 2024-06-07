@@ -1,0 +1,87 @@
+---
+- name: Configure Web-02 Server
+  hosts: Web-02
+  become: true
+  vars:
+    web_server_name: "192.168.56.22"
+    apache_port: 8080
+    web02_document_root: "/srv/web/web02/"
+  
+  tasks:
+    - name: Install nfs client
+      dnf:
+        name: 
+        - nfs-utils
+        - nfsv4-client-utils
+        state: present
+
+    - name: Start and enable NFS service
+      service:
+        name: nfs-server
+        state: started
+        enabled: yes
+
+    - name: Add firewall rule for NFS (permanent)
+      firewalld:
+        service: nfs
+        permanent: yes
+        state: enabled
+
+    - name: Add firewall rule for custom port (permanent)
+      firewalld:
+        port: "{{ apache_port }}/tcp"
+        permanent: yes
+        state: enabled
+
+    - name: Restart firewalld to apply permanent rules
+      service:
+        name: firewalld
+        state: restarted
+
+    - name: Mount NFS directory for apache website
+      mount:
+        src: "192.168.56.30:/srv/nfs/web02"
+        path: "{{ web02_document_root }}"
+        fstype: nfs
+        opts: "defaults"
+        state: mounted
+
+    - name: Configure Apache VirtualHost for apache website
+      template:
+        src: templates/web02_virtualhost.conf.j2
+        dest: /etc/httpd/conf.d/web02.conf
+
+    - name: Create index.html file for Web Server information
+      template:
+        src: templates/index.html.j2
+        dest: "{{ web02_document_root }}index.html"
+      vars:
+        domain: "example.com"
+        ip_address: "192.168.56.22"
+        server_name: "Web-02"
+
+    - name: Set permissions and ownership with web directory
+      file:
+        path: "/srv/web/web01/"
+        mode: "0757"
+        owner: "apache"
+        group: "apache"
+        recurse: yes
+      become: true
+
+    - name: Ensure SELinux allows Apache to make network connections
+      command: "setsebool -P httpd_can_network_connect 1"
+      become: true
+
+    - name: Restore SELinux context for web01 document root
+      command: "restorecon -Rv {{ web02_document_root }}"
+      become: true
+
+    - name: Set SELinux context for NFS shared directory
+      command: "sudo setsebool -P httpd_use_nfs 1"
+      become: true
+
+    - name: Restart Apache
+      service:
+        name: httpd
+        state: restarted

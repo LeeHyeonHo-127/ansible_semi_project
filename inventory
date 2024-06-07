@@ -1,0 +1,18 @@
+[lbserver]
+LB-01 ansible_host=192.168.56.11
+
+[webservers]
+Web-01 ansible_host=192.168.56.21
+Web-02 ansible_host=192.168.56.22
+
+[dbserver]
+DB-01 ansible_host=192.168.56.40
+
+[nfsserver]
+Storage-01 ansible_host=192.168.56.30
+
+[all:vars]
+ansible_ssh_user=sshuser
+ansible_become=true
+ansible_become_method=sudo
+ansible_become_user=root

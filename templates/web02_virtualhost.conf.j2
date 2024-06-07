@@ -1,0 +1,12 @@
+Listen 8080
+
+<VirtualHost *:{{ apache_port }}>
+    ServerName {{ web_server_name }}
+    DocumentRoot "/srv/web/web02/"
+    ServerAlias www.web02.example.com
+    <Directory "/srv/web/web02/">
+        DirectoryIndex index.html
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

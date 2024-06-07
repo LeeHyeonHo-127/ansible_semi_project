@@ -1,0 +1,8 @@
+<VirtualHost *:{{ wp_port }}>
+    ServerName {{ web_server_name }}
+    DocumentRoot "{{ wp01_document_root }}wordpress"
+    <Directory "{{ wp01_document_root }}wordpress" >
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
